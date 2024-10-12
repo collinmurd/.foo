@@ -55,6 +55,20 @@ sudo adduser groceries --disabled-password --gecos ""
 sudo usermod -aG docker groceries
 
 # create a key pair
+sudo su groceries
 ssh-keygen -f /home/groceries/.ssh/id_rsa -N ""
 cat /home/groceries/.ssh/id_rsa.pub >> /home/groceries/.ssh/authorized_keys
+```
+
+#### create `guillotine` user
+```bash
+sudo adduser guillotine --disabled-password --gecos ""
+
+# add to docker user group (which docker created for us)
+sudo usermod -aG docker guillotine
+
+# create a key pair
+sudo su guillotine
+ssh-keygen -f /home/guillotine/.ssh/id_rsa -N ""
+cat /home/guillotine/.ssh/id_rsa.pub >> /home/guillotine/.ssh/authorized_keys
 ```
