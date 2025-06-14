@@ -72,3 +72,16 @@ sudo su guillotine
 ssh-keygen -f /home/guillotine/.ssh/id_rsa -N ""
 cat /home/guillotine/.ssh/id_rsa.pub >> /home/guillotine/.ssh/authorized_keys
 ```
+
+#### Cert renewal
+```bash
+sudo apt update
+sudo apt install -y jq # renewal script is dependent on jq
+
+cp cert_renewal/bin/porkbun_cert_renewal.sh /usr/bin/porkbun_cert_renewal.sh
+mkdir /etc/porkbun_cert_renewal
+cp cert_renewal/porkbun_config.json /etc/porkbun_cert_renewal/some_domain.json
+# update that config file with correct values
+
+crontab -e # and add an entry similar to cert_cron
+```
