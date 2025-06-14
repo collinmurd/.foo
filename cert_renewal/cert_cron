@@ -1,2 +1,2 @@
 # Run certificate renewal script daily at 3:00 AM
-0 3 * * * /home/collin/projects/.foo/bin/renew_cert.sh
+0 3 * * * /usr/bin/porkbun_cert_renewal.sh /etc/porkbun_cert_renewal/collinmurd.foo.json
