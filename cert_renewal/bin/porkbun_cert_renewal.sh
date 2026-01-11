@@ -81,7 +81,7 @@ NGINX_CONFIG=$(jq -r '.reload_nginx // "false"' "$CONFIG_FILE")
 if [ "$NGINX_CONFIG" = "true" ]; then
     echo "Reloading Nginx configuration..."
     if command -v nginx &> /dev/null; then
-        nginx -t && systemctl reload nginx
+        nginx -t && nginx -s reload
         echo "Nginx reloaded successfully"
     else
         echo "Warning: Nginx not found, skipping reload"
