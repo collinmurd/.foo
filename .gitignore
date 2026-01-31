@@ -20,6 +20,7 @@ iac/*.tfplan.*
 **/*.pem
 **/*.key
 **/*.cert
+.vault_pass
 
 # OS files
 .DS_Store
