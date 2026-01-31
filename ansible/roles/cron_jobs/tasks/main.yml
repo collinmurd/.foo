@@ -28,6 +28,5 @@
 - name: Run certificate renewal immediately (optional)
   command: /usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_config.json
   register: cert_renewal_result
-  failed_when: false
   changed_when: cert_renewal_result.rc == 0
   tags: ['cert_renewal']

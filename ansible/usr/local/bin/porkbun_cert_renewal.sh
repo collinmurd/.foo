@@ -45,7 +45,7 @@ mkdir -p "$CERT_DIR"
 echo "Starting certificate renewal for $DOMAIN"
 
 # Make API request to retrieve SSL certificate
-API_RESPONSE=$(curl -s -X POST "https://porkbun.com/api/json/v3/ssl/retrieve/$DOMAIN" \
+API_RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/ssl/retrieve/$DOMAIN" \
     -H "Content-Type: application/json" \
     -d '{
         "apikey": "'"$API_KEY"'",
