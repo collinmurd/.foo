@@ -1,0 +1,16 @@
+---
+# Create and configure application users
+- name: Create groceries user
+  user:
+    name: groceries
+    comment: "Groceries Service User"
+    shell: /bin/bash
+    groups: docker
+    append: yes
+    create_home: yes
+
+- name: Set up SSH authorized keys for groceries user
+  authorized_key:
+    user: groceries
+    state: present
+    key: "{{ groceries_ssh_key }}"

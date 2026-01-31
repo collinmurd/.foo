@@ -1,153 +1,16 @@
 #cloud-config
-# Cloud-init configuration for groceries-2 instance
-# Automates initial server setup based on manual instructions in README.md
+# Minimal cloud-init configuration for groceries-2 instance
+# Bootstrap only - all configuration managed by Ansible
 
-# Update package index on first boot
+# Update package index and install Python for Ansible
 package_update: true
 package_upgrade: false
 
-# Install required packages
 packages:
-  - ca-certificates
-  - curl
-  - apt-transport-https
-  - gnupg
-  - lsb-release
-  - nginx
-  - jq
-  - netfilter-persistent
-  - iptables-persistent
-  - cron
+  - python3
+  - python3-apt
 
-# Configure firewall rules (ports 80 and 443)
-runcmd:
-  # Add Docker's official GPG key and repository
-  - sudo install -m 0755 -d /etc/apt/keyrings
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-  - chmod a+r /etc/apt/keyrings/docker.asc
-  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-  
-  # Install Docker
-  - apt-get update
-  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-  
-  # Configure firewall rules for HTTP and HTTPS
-  - iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
-  - iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
-  - netfilter-persistent save
-  
-  # Remove default nginx site
-  - rm -f /etc/nginx/sites-enabled/default
-  
-  # Set up nginx configuration
-  - cp /tmp/collinmurd.foo.nginx /etc/nginx/sites-available/collinmurd.foo
-  - chown root:root /etc/nginx/sites-available/collinmurd.foo
-  - ln -s /etc/nginx/sites-available/collinmurd.foo /etc/nginx/sites-enabled/collinmurd.foo
-  
-  # Set up custom landing page
-  - cp /tmp/index.html /usr/share/nginx/html/index.html
-  - chown root:root /usr/share/nginx/html/index.html
-  
-  # Create SSL directory for certificates
-  - mkdir -p /etc/nginx/ssl
-  - chmod 755 /etc/nginx/ssl
-  
-  # Create cert renewal directory
-  - mkdir -p /etc/porkbun_cert_renewal
-  - chmod 700 /etc/porkbun_cert_renewal
-  
-  # Add cron job for certificate renewal (runs daily at 3 AM)
-  - echo "0 3 * * * /usr/bin/porkbun_cert_renewal.sh /etc/porkbun_cert_renewal/collinmurd.foo.json" | crontab -
-  
-  # Reload nginx to pick up configuration (will fail initially without certs, that's OK)
-  - nginx -s reload || true
-
-# Create users with proper configuration
+# Preserve default ubuntu user
 users:
-  - name: groceries
-    gecos: Groceries Service User
-    groups: docker
-    shell: /bin/bash
-    ssh_authorized_keys:
-      - ${ssh_authorized_keys}
-  
-  - name: guillotine
-    gecos: Guillotine Service User
-    groups: docker
-    shell: /bin/bash
+  - default
 
-# Write nginx configuration and cert renewal scripts
-write_files:
-  - path: /tmp/collinmurd.foo.nginx
-    content: |
-      ${indent(6, nginx_config)}
-  
-  - path: /tmp/index.html
-    content: |
-      ${indent(6, index_html)}
-  
-  - path: /usr/bin/porkbun_cert_renewal.sh
-    permissions: '0755'
-    content: |
-      ${indent(6, porkbun_cert_renewal_script)}
-  
-  - path: /etc/porkbun_cert_renewal/collinmurd.foo.json
-    permissions: '0600'
-    content: |
-      ${indent(6, porkbun_config)}
-  
-  - path: /etc/systemd/system/setup-users.service
-    content: |
-      [Unit]
-      Description=Setup service users with SSH keys
-      After=network.target
-      
-      [Service]
-      Type=oneshot
-      ExecStart=/usr/local/bin/setup-users.sh
-      RemainAfterExit=yes
-      
-      [Install]
-      WantedBy=multi-user.target
-  
-  - path: /usr/local/bin/setup-users.sh
-    permissions: '0755'
-    content: |
-      #!/bin/bash
-      # Setup SSH keys for service users
-      
-      # Setup groceries user
-      if [ ! -f /home/groceries/.ssh/id_rsa ]; then
-        sudo -u groceries ssh-keygen -f /home/groceries/.ssh/id_rsa -N ""
-        sudo -u groceries cat /home/groceries/.ssh/id_rsa.pub >> /home/groceries/.ssh/authorized_keys
-        sudo -u groceries chmod 600 /home/groceries/.ssh/authorized_keys
-      fi
-      
-      # Setup guillotine user
-      if [ ! -f /home/guillotine/.ssh/id_rsa ]; then
-        sudo -u guillotine ssh-keygen -f /home/guillotine/.ssh/id_rsa -N ""
-        sudo -u guillotine cat /home/guillotine/.ssh/id_rsa.pub >> /home/guillotine/.ssh/authorized_keys
-        sudo -u guillotine chmod 600 /home/guillotine/.ssh/authorized_keys
-      fi
-
-# Final commands to enable and start services
-bootcmd:
-  - systemctl enable setup-users.service
-  - systemctl start setup-users.service
-
-final_message: |
-  Cloud-init setup complete!
-  Instance is ready for docker-compose deployments.
-  Users 'groceries' and 'guillotine' have been created with SSH keys.
-  Docker, Nginx, and firewall rules are configured.
-  Certificate renewal script, config, and cron job are installed.
-  
-  REMAINING MANUAL STEP:
-  1. SSH to instance and update /etc/porkbun_cert_renewal/collinmurd.foo.json with your actual Porkbun API keys:
-     ssh ubuntu@<instance-ip>
-     sudo nano /etc/porkbun_cert_renewal/collinmurd.foo.json
-  
-  2. Run initial certificate fetch:
-     sudo /usr/bin/porkbun_cert_renewal.sh /etc/porkbun_cert_renewal/collinmurd.foo.json
-  
-  After that, certificates will renew automatically daily at 3 AM via cron!

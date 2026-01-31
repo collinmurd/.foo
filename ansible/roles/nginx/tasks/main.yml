@@ -1,0 +1,17 @@
+---
+# Configure nginx
+- name: Copy nginx configuration
+  copy:
+    src: etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: nginx -t -c %s
+  notify: reload nginx
+
+- name: Ensure nginx is running and enabled
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes

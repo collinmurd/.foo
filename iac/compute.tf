@@ -36,11 +36,8 @@ resource "oci_core_instance" "main" {
   metadata = {
     ssh_authorized_keys = var.ssh_authorized_keys
     user_data = base64encode(templatefile("${path.module}/cloud-init.yaml", {
-      ssh_authorized_keys         = var.ssh_authorized_keys
-      nginx_config                = file("${path.module}/../nginx.conf")
-      index_html                  = file("${path.module}/../index.html")
-      porkbun_cert_renewal_script = file("${path.module}/../cert_renewal/bin/porkbun_cert_renewal.sh")
-      porkbun_config              = file("${path.module}/../cert_renewal/porkbun_config.json")
+      ssh_authorized_keys           = var.ssh_authorized_keys
+      ssh_authorized_keys_groceries = var.ssh_authorized_keys_groceries
     }))
   }
 
@@ -112,7 +109,6 @@ resource "oci_core_instance" "main" {
     boot_volume_type                    = "PARAVIRTUALIZED"
     firmware                            = "UEFI_64"
     is_consistent_volume_naming_enabled = true
-    is_pv_encryption_in_transit_enabled = false
     network_type                        = "PARAVIRTUALIZED"
     remote_data_volume_type             = "PARAVIRTUALIZED"
   }

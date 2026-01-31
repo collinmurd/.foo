@@ -1,0 +1,13 @@
+---
+# Main playbook for groceries infrastructure configuration
+- name: Configure groceries server
+  hosts: groceries_servers
+  become: yes
+  
+  roles:
+    - packages
+    - users
+    - docker
+    - firewall
+    - nginx
+    - cron_jobs

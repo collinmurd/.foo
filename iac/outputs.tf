@@ -83,3 +83,15 @@ output "instance_shape" {
   description = "Shape of the compute instance"
   value       = oci_core_instance.main.shape
 }
+
+# Ansible Inventory Output
+output "ansible_inventory" {
+  description = "Ansible inventory file content"
+  value       = <<-EOT
+[groceries_servers]
+${oci_core_instance.main.display_name} ansible_host=${oci_core_instance.main.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+[groceries_servers:vars]
+ansible_python_interpreter=/usr/bin/python3
+EOT
+}

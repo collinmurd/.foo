@@ -1,0 +1,7 @@
+{
+    "domain": "collinmurd.foo",
+    "certificate_directory": "/etc/nginx/ssl",
+    "api_key": "YOUR_PORKBUN_API_KEY",
+    "secret_key": "YOUR_PORKBUN_SECRET_KEY",
+    "reload_nginx": true
+}
