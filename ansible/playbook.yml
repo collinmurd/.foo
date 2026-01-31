@@ -9,5 +9,5 @@
     - docker      # Install Docker first to create docker group
     - users       # Then create users with docker group membership
     - firewall
-    - nginx
     - cron_jobs
+    - nginx
