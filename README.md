@@ -2,8 +2,15 @@
 
 Infra config for some sites
 
-## Setting up a machine
-> One day I'll automate this
+## Infrastructure as Code
+
+> ✅ **Now automated with Terraform!** See [iac/README-terraform.md](iac/README-terraform.md) for details.
+
+The infrastructure is now managed with Terraform. All networking, compute, and initial provisioning is automated.
+
+## Manual Setup (Legacy - For Reference)
+
+The following steps were previously done manually but are now automated via Terraform and cloud-init:
 
 #### Docker
 ```bash
