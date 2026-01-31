@@ -5,8 +5,8 @@
     chain: INPUT
     protocol: tcp
     destination_port: 80
+    ctstate: NEW
     jump: ACCEPT
-    state: NEW
     action: insert
     rule_num: 6
 
@@ -15,8 +15,8 @@
     chain: INPUT
     protocol: tcp
     destination_port: 443
+    ctstate: NEW
     jump: ACCEPT
-    state: NEW
     action: insert
     rule_num: 6
 
