@@ -1,13 +1,25 @@
 ---
 # Configure nginx
-- name: Copy nginx configuration
+- name: Copy site configuration
   copy:
     src: etc/nginx/nginx.conf
-    dest: /etc/nginx/nginx.conf
+    dest: /etc/nginx/sites-available/collinmurd.foo
     owner: root
     group: root
     mode: '0644'
-    validate: nginx -t -c %s
+  notify: reload nginx
+
+- name: Enable site configuration
+  file:
+    src: /etc/nginx/sites-available/collinmurd.foo
+    dest: /etc/nginx/sites-enabled/collinmurd.foo
+    state: link
+  notify: reload nginx
+
+- name: Remove default nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
   notify: reload nginx
 
 - name: Ensure nginx is running and enabled
