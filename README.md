@@ -1,9 +1,129 @@
 # collinmurd.foo
 
-Infra config for some sites
+Infrastructure configuration for collinmurd.foo sites
 
-## Setting up a machine
-> One day I'll automate this
+## Quick Start
+
+### Prerequisites
+
+1. Install Terraform: https://developer.hashicorp.com/terraform/install
+2. Install Ansible: `sudo apt install ansible` (or `brew install ansible` on macOS)
+3. Configure OCI CLI credentials at `~/.oci/oci_api_key.pem`
+4. SSH key pair at `~/.ssh/id_rsa`
+
+### Deployment
+
+#### 1. Provision Infrastructure with Terraform
+
+```bash
+cd iac
+
+# Initialize Terraform (first time only)
+terraform init
+
+# Review planned changes
+terraform plan
+
+# Apply infrastructure
+terraform apply
+```
+
+This creates:
+- VCN with public/private subnets
+- Internet Gateway, NAT Gateway, Service Gateway
+- Compute instance with Ubuntu
+- Security lists and route tables
+- Auto-generated Ansible inventory
+
+#### 2. Configure Server with Ansible
+
+```bash
+cd ../ansible
+
+# Set up vault password (first time only)
+echo "your-vault-password" > .vault_pass
+chmod 600 .vault_pass
+
+# Edit encrypted credentials (first time only)
+ansible-vault edit group_vars/all/vault.yml
+# Add your Porkbun API key and secret
+
+# Run configuration playbook
+ansible-playbook playbook.yml
+```
+
+This configures:
+- System packages (curl, jq, etc.)
+- Docker and Docker Compose
+- Users (groceries) with SSH keys and docker group
+- Firewall rules (ports 80, 443)
+- Nginx with SSL configuration
+- Certificate renewal cron job
+- Runs initial certificate renewal
+
+### Making Changes
+
+**Infrastructure changes** (instance size, networking, etc.):
+```bash
+cd iac
+# Edit .tf files
+terraform plan
+terraform apply
+```
+
+**Configuration changes** (nginx, cron jobs, packages, etc.):
+```bash
+cd ansible
+# Edit roles or files in etc/, usr/
+ansible-playbook playbook.yml
+```
+
+**Update credentials**:
+```bash
+cd ansible
+ansible-vault edit group_vars/all/vault.yml
+ansible-playbook playbook.yml
+```
+
+### Skip Certificate Renewal
+
+If you want to skip running certificate renewal during playbook execution:
+```bash
+ansible-playbook playbook.yml --skip-tags cert_renewal
+```
+
+## Architecture
+
+```
+Terraform       → Infrastructure (immutable)
+  ├── VCN, Subnets, Gateways
+  ├── Compute instance
+  └── Generates Ansible inventory
+
+Cloud-init      → Bootstrap (one-time)
+  └── Python for Ansible
+
+Ansible         → Configuration (mutable)
+  ├── Packages & Docker
+  ├── Users
+  ├── Firewall
+  ├── Nginx
+  └── Cron jobs
+
+Docker          → Applications (independent)
+  └── Deployed via separate CI/CD pipelines
+```
+
+## Documentation
+
+- [iac/](iac/) - Terraform infrastructure code
+- [ansible/README.md](ansible/README.md) - Ansible playbook documentation
+- [ansible/SECRETS.md](ansible/SECRETS.md) - Managing credentials with Ansible Vault
+- [ansible/FILES.md](ansible/FILES.md) - File structure conventions
+
+## Manual Setup (Legacy - For Reference)
+
+The following steps were previously done manually but are now automated via Terraform and cloud-init:
 
 #### Docker
 ```bash

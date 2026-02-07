@@ -1,0 +1,13 @@
+---
+# Main playbook for groceries infrastructure configuration
+- name: Configure groceries server
+  hosts: groceries_servers
+  become: yes
+  
+  roles:
+    - packages
+    - docker      # Install Docker first to create docker group
+    - users       # Then create users with docker group membership
+    - firewall
+    - cron_jobs
+    - nginx

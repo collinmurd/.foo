@@ -1,0 +1,25 @@
+---
+# Configure firewall rules for HTTP and HTTPS
+- name: Allow HTTP traffic (port 80)
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    ctstate: NEW
+    jump: ACCEPT
+    action: insert
+    rule_num: 6
+
+- name: Allow HTTPS traffic (port 443)
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 443
+    ctstate: NEW
+    jump: ACCEPT
+    action: insert
+    rule_num: 6
+
+- name: Save iptables rules
+  shell: netfilter-persistent save
+  changed_when: false

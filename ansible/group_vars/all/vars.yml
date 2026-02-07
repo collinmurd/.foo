@@ -1,0 +1,9 @@
+---
+# Non-sensitive variables that reference vault variables
+porkbun_domain: "collinmurd.foo"
+porkbun_cert_directory: "/etc/nginx/ssl"
+porkbun_reload_nginx: true
+
+# Reference encrypted vault variables
+porkbun_api_key: "{{ vault_porkbun_api_key }}"
+porkbun_secret_key: "{{ vault_porkbun_secret_key }}"

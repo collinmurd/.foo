@@ -1,0 +1,32 @@
+---
+# Set up cron jobs for certificate renewal and other tasks
+- name: Copy certificate renewal script
+  copy:
+    src: usr/local/bin/porkbun_cert_renewal.sh
+    dest: /usr/local/bin/porkbun_cert_renewal.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Template Porkbun config with credentials
+  template:
+    src: etc/porkbun_config.json.j2
+    dest: /etc/porkbun_config.json
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Set up certificate renewal cron job
+  cron:
+    name: "Porkbun certificate renewal"
+    user: root
+    minute: "0"
+    hour: "3"
+    day: "1"
+    job: "/usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_config.json >> /var/log/cert_renewal.log 2>&1"
+
+- name: Run certificate renewal immediately (optional)
+  command: /usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_config.json
+  register: cert_renewal_result
+  changed_when: cert_renewal_result.rc == 0
+  tags: ['cert_renewal']

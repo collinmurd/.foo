@@ -1,0 +1,16 @@
+#cloud-config
+# Minimal cloud-init configuration for groceries-2 instance
+# Bootstrap only - all configuration managed by Ansible
+
+# Update package index and install Python for Ansible
+package_update: true
+package_upgrade: false
+
+packages:
+  - python3
+  - python3-apt
+
+# Preserve default ubuntu user
+users:
+  - default
+

@@ -1,0 +1,34 @@
+# Terraform files
+iac/.terraform/
+iac/.terraform.lock.hcl
+iac/*.tfstate
+iac/*.tfstate.*
+iac/*.tfvars
+iac/*.tfvars.json
+iac/crash.log
+iac/crash.*.log
+iac/override.tf
+iac/override.tf.json
+iac/*_override.tf
+iac/*_override.tf.json
+
+# Terraform plan files
+iac/*.tfplan
+iac/*.tfplan.*
+
+# Sensitive data
+**/*.pem
+**/*.key
+**/*.cert
+.vault_pass
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
