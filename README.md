@@ -123,7 +123,7 @@ Docker          → Applications (independent)
 
 ## Manual Setup (Legacy - For Reference)
 
-The following steps were previously done manually but are now automated via Terraform and cloud-init:
+The following steps were previously done manually but are now automated via Terraform and Ansible
 
 #### Docker
 ```bash
