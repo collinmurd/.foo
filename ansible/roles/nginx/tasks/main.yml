@@ -1,18 +1,35 @@
 ---
-# Configure nginx
-- name: Copy site configuration
+# Configure nginx for collinmurd.foo
+- name: Copy site configuration for collinmurd.foo
   copy:
-    src: etc/nginx/nginx.conf
+    src: etc/nginx/collinmurd.foo.nginx.conf
     dest: /etc/nginx/sites-available/collinmurd.foo
     owner: root
     group: root
     mode: '0644'
   notify: reload nginx
 
-- name: Enable site configuration
+- name: Enable site configuration for collinmurd.foo
   file:
     src: /etc/nginx/sites-available/collinmurd.foo
     dest: /etc/nginx/sites-enabled/collinmurd.foo
+    state: link
+  notify: reload nginx
+
+# Configure nginx for collinandalivia.com
+- name: Copy site configuration for collinandalivia.com
+  copy:
+    src: etc/nginx/collinandalivia.com.nginx.conf
+    dest: /etc/nginx/sites-available/collinandalivia.com
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
+- name: Enable site configuration for collinandalivia.com
+  file:
+    src: /etc/nginx/sites-available/collinandalivia.com
+    dest: /etc/nginx/sites-enabled/collinandalivia.com
     state: link
   notify: reload nginx
 
