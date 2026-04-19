@@ -14,3 +14,18 @@
     user: groceries
     state: present
     key: "{{ groceries_ssh_key }}"
+
+- name: Create wedding user
+  user:
+    name: wedding
+    comment: "Wedding Service User"
+    shell: /bin/bash
+    groups: docker
+    append: yes
+    create_home: yes
+
+- name: Set up SSH authorized keys for wedding user
+  authorized_key:
+    user: wedding
+    state: present
+    key: "{{ wedding_ssh_key }}"
