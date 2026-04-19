@@ -8,25 +8,30 @@
     group: root
     mode: '0755'
 
-- name: Template Porkbun config with credentials
+- name: Template Porkbun config for each domain
   template:
     src: etc/porkbun_config.json.j2
-    dest: /etc/porkbun_config.json
+    dest: "/etc/porkbun_{{ item | replace('.', '_') }}_config.json"
     owner: root
     group: root
     mode: '0600'
+  loop: "{{ porkbun_domains }}"
+  vars:
+    porkbun_domain: "{{ item }}"
 
-- name: Set up certificate renewal cron job
+- name: Set up certificate renewal cron job for each domain
   cron:
-    name: "Porkbun certificate renewal"
+    name: "Porkbun certificate renewal - {{ item }}"
     user: root
     minute: "0"
     hour: "3"
     day: "1"
-    job: "/usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_config.json >> /var/log/cert_renewal.log 2>&1"
+    job: "/usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_{{ item | replace('.', '_') }}_config.json >> /var/log/cert_renewal_{{ item | replace('.', '_') }}.log 2>&1"
+  loop: "{{ porkbun_domains }}"
 
-- name: Run certificate renewal immediately (optional)
-  command: /usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_config.json
+- name: Run certificate renewal immediately for each domain (optional)
+  command: "/usr/local/bin/porkbun_cert_renewal.sh /etc/porkbun_{{ item | replace('.', '_') }}_config.json"
   register: cert_renewal_result
   changed_when: cert_renewal_result.rc == 0
+  loop: "{{ porkbun_domains }}"
   tags: ['cert_renewal']

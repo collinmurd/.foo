@@ -64,17 +64,20 @@ fi
 CERTIFICATE=$(echo "$API_RESPONSE" | jq -r '.certificatechain')
 PRIVATE_KEY=$(echo "$API_RESPONSE" | jq -r '.privatekey')
 
+CERT_DESTINATION="$CERT_DIR/$DOMAIN.cert.pem"
+KEY_DESTINATION="$CERT_DIR/$DOMAIN.key.pem"
+
 # Save certificate and private key to files
-echo "$CERTIFICATE" > "$CERT_DIR/domain.cert.pem"
-echo "$PRIVATE_KEY" > "$CERT_DIR/private.key.pem"
+echo "$CERTIFICATE" > "$CERT_DESTINATION"
+echo "$PRIVATE_KEY" > "$KEY_DESTINATION"
 
 # Set proper permissions
-chmod 644 "$CERT_DIR/domain.cert.pem"
-chmod 600 "$CERT_DIR/private.key.pem"
+chmod 644 "$CERT_DESTINATION"
+chmod 600 "$KEY_DESTINATION"
 
 echo "Successfully renewed SSL certificate for $DOMAIN"
-echo "Certificate saved to: $CERT_DIR/domain.cert.pem"
-echo "Private key saved to: $CERT_DIR/private.key.pem"
+echo "Certificate saved to: $CERT_DESTINATION"
+echo "Private key saved to: $KEY_DESTINATION"
 
 # Check if we need to reload Nginx
 NGINX_CONFIG=$(jq -r '.reload_nginx // "false"' "$CONFIG_FILE")

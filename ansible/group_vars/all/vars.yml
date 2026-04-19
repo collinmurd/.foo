@@ -1,8 +1,12 @@
 ---
 # Non-sensitive variables that reference vault variables
-porkbun_domain: "collinmurd.foo"
 porkbun_cert_directory: "/etc/nginx/ssl"
 porkbun_reload_nginx: true
+
+# List of domains to manage certificates for
+porkbun_domains:
+  - collinmurd.foo
+  - collinandalivia.com
 
 # Reference encrypted vault variables
 porkbun_api_key: "{{ vault_porkbun_api_key }}"
