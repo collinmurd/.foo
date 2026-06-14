@@ -84,6 +84,22 @@ output "instance_shape" {
   value       = oci_core_instance.main.shape
 }
 
+# Block Volume Outputs
+output "block_volume_id" {
+  description = "OCID of the application data block volume"
+  value       = oci_core_volume.app_data.id
+}
+
+output "block_volume_attachment_id" {
+  description = "OCID of the block volume attachment"
+  value       = oci_core_volume_attachment.app_data.id
+}
+
+output "block_volume_device" {
+  description = "Device path exposed by OCI for the attached block volume"
+  value       = try(oci_core_volume_attachment.app_data.device, null)
+}
+
 # Ansible Inventory Output
 output "ansible_inventory" {
   description = "Ansible inventory file content"

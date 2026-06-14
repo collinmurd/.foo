@@ -29,9 +29,11 @@ terraform apply
 ```
 
 This creates:
+
 - VCN with public/private subnets
 - Internet Gateway, NAT Gateway, Service Gateway
 - Compute instance with Ubuntu
+- Dedicated block volume attached for persistent app data
 - Security lists and route tables
 - Auto-generated Ansible inventory
 
@@ -53,9 +55,11 @@ ansible-playbook playbook.yml
 ```
 
 This configures:
+
 - System packages (curl, jq, etc.)
 - Docker and Docker Compose
 - Users (groceries) with SSH keys and docker group
+- Persistent app-data mount at /var/lib/app-data
 - Firewall rules (ports 80, 443)
 - Nginx with SSL configuration
 - Certificate renewal cron job
@@ -64,6 +68,7 @@ This configures:
 ### Making Changes
 
 **Infrastructure changes** (instance size, networking, etc.):
+
 ```bash
 cd iac
 # Edit .tf files
@@ -72,6 +77,7 @@ terraform apply
 ```
 
 **Configuration changes** (nginx, cron jobs, packages, etc.):
+
 ```bash
 cd ansible
 # Edit roles or files in etc/, usr/
@@ -79,6 +85,7 @@ ansible-playbook playbook.yml
 ```
 
 **Update credentials**:
+
 ```bash
 cd ansible
 ansible-vault edit group_vars/all/vault.yml
@@ -88,6 +95,7 @@ ansible-playbook playbook.yml
 ### Skip Certificate Renewal
 
 If you want to skip running certificate renewal during playbook execution:
+
 ```bash
 ansible-playbook playbook.yml --skip-tags cert_renewal
 ```
@@ -126,6 +134,7 @@ Docker          → Applications (independent)
 The following steps were previously done manually but are now automated via Terraform and cloud-init:
 
 #### Docker
+
 ```bash
 # docker from here https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
 sudo apt-get update
@@ -143,6 +152,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 ```
 
 #### firewall
+
 ```bash
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
 sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
@@ -150,6 +160,7 @@ sudo netfilter-persistent save
 ```
 
 #### nginx
+
 ```bash
 sudo apt install nginx
 sudo rm /etc/nginx/sites-enabled/default # delete default site
@@ -168,6 +179,7 @@ sudo nginx -s reload
 ```
 
 #### create `groceries` user
+
 ```bash
 sudo adduser groceries --disabled-password --gecos ""
 
@@ -181,6 +193,7 @@ cat /home/groceries/.ssh/id_rsa.pub >> /home/groceries/.ssh/authorized_keys
 ```
 
 #### create `guillotine` user
+
 ```bash
 sudo adduser guillotine --disabled-password --gecos ""
 
@@ -194,6 +207,7 @@ cat /home/guillotine/.ssh/id_rsa.pub >> /home/guillotine/.ssh/authorized_keys
 ```
 
 #### Cert renewal
+
 ```bash
 sudo apt update
 sudo apt install -y jq # renewal script is dependent on jq

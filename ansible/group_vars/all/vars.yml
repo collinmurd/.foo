@@ -11,3 +11,16 @@ porkbun_domains:
 # Reference encrypted vault variables
 porkbun_api_key: "{{ vault_porkbun_api_key }}"
 porkbun_secret_key: "{{ vault_porkbun_secret_key }}"
+
+# Persistent application data storage
+storage_device_candidates:
+  - /dev/oracleoci/oraclevdb
+  - /dev/oracleoci/oraclevdc
+  - /dev/sdb
+  - /dev/vdb
+storage_mount_path: /var/lib/app-data
+storage_filesystem_type_name: ext4
+storage_mount_options: defaults,nofail
+storage_owner_user: root
+storage_owner_group: docker
+storage_mount_mode: "0775"

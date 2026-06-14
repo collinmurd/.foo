@@ -1,0 +1,67 @@
+---
+- name: Probe candidate block devices
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ storage_device_candidates }}"
+  register: storage_device_probe
+  tags: [storage]
+
+- name: Resolve attached block device path
+  ansible.builtin.set_fact:
+    storage_device: "{{ (storage_device_probe.results | selectattr('stat.exists', 'equalto', true) | map(attribute='item') | list | first) | default('') }}"
+  tags: [storage]
+
+- name: Fail if no expected attached device is present
+  ansible.builtin.assert:
+    that:
+      - storage_device | length > 0
+    fail_msg: "No attached block volume device found. Checked: {{ storage_device_candidates | join(', ') }}"
+  tags: [storage]
+
+- name: Check existing filesystem type on device
+  ansible.builtin.command: "blkid -o value -s TYPE {{ storage_device }}"
+  register: storage_filesystem_type
+  changed_when: false
+  failed_when: false
+  tags: [storage]
+
+- name: Create filesystem when device is empty
+  ansible.builtin.filesystem:
+    fstype: "{{ storage_filesystem_type_name }}"
+    dev: "{{ storage_device }}"
+    force: false
+  when: storage_filesystem_type.stdout | trim == ""
+  tags: [storage]
+
+- name: Ensure mount directory exists
+  ansible.builtin.file:
+    path: "{{ storage_mount_path }}"
+    state: directory
+    owner: "{{ storage_owner_user }}"
+    group: "{{ storage_owner_group }}"
+    mode: "{{ storage_mount_mode }}"
+  tags: [storage]
+
+- name: Read filesystem UUID
+  ansible.builtin.command: "blkid -o value -s UUID {{ storage_device }}"
+  register: storage_uuid
+  changed_when: false
+  tags: [storage]
+
+- name: Mount data volume and persist in fstab
+  ansible.builtin.mount:
+    path: "{{ storage_mount_path }}"
+    src: "UUID={{ storage_uuid.stdout | trim }}"
+    fstype: "{{ storage_filesystem_type_name }}"
+    opts: "{{ storage_mount_options }}"
+    state: mounted
+  tags: [storage]
+
+- name: Ensure mount path ownership for container data
+  ansible.builtin.file:
+    path: "{{ storage_mount_path }}"
+    state: directory
+    owner: "{{ storage_owner_user }}"
+    group: "{{ storage_owner_group }}"
+    mode: "{{ storage_mount_mode }}"
+  tags: [storage]

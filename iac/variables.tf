@@ -77,6 +77,35 @@ variable "instance_boot_volume_size_in_gbs" {
   default     = 50
 }
 
+# Block Volume Configuration
+variable "block_volume_display_name" {
+  description = "Display name for the application data block volume"
+  type        = string
+  default     = "groceries-app-data"
+}
+
+variable "block_volume_size_in_gbs" {
+  description = "Size of the application data block volume in GB"
+  type        = number
+  default     = 50
+
+  validation {
+    condition     = var.block_volume_size_in_gbs >= 50 && var.block_volume_size_in_gbs <= 32768
+    error_message = "block_volume_size_in_gbs must be between 50 and 32768."
+  }
+}
+
+variable "block_volume_attachment_type" {
+  description = "Block volume attachment type"
+  type        = string
+  default     = "paravirtualized"
+
+  validation {
+    condition     = contains(["iscsi", "paravirtualized"], var.block_volume_attachment_type)
+    error_message = "block_volume_attachment_type must be either 'iscsi' or 'paravirtualized'."
+  }
+}
+
 # Image Configuration - Ubuntu 22.04 ARM
 variable "instance_image_id" {
   description = "OCID of the image to use for the instance (Ubuntu 22.04 ARM)"

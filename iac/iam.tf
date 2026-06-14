@@ -22,5 +22,6 @@ resource "oci_identity_policy" "groceries_instance" {
   statements = [
     "Allow dynamic-group 'Default'/'${oci_identity_dynamic_group.groceries.name}' to use secret-family in tenancy",
     "Allow dynamic-group 'Default'/'${oci_identity_dynamic_group.groceries.name}' to use generative-ai-chat in tenancy",
+    "Allow dynamic-group 'Default'/'${oci_identity_dynamic_group.groceries.name}' to use volume-family in compartment id ${var.compartment_id}",
   ]
 }

@@ -6,7 +6,7 @@ data "oci_identity_availability_domains" "ads" {
 # Compute Instance
 resource "oci_core_instance" "main" {
   compartment_id      = var.compartment_id
-  availability_domain = data.oci_identity_availability_domains.ads.availability_domains[2].name  # AD-3
+  availability_domain = data.oci_identity_availability_domains.ads.availability_domains[2].name # AD-3
   display_name        = var.instance_display_name
   shape               = var.instance_shape
 
@@ -88,7 +88,7 @@ resource "oci_core_instance" "main" {
     }
 
     plugins_config {
-      desired_state = "DISABLED"
+      desired_state = "ENABLED"
       name          = "Block Volume Management"
     }
 
@@ -116,7 +116,7 @@ resource "oci_core_instance" "main" {
   # Prevent accidental destruction
   lifecycle {
     ignore_changes = [
-      source_details[0].source_id,  # Ignore image updates
+      source_details[0].source_id, # Ignore image updates
     ]
   }
 }
