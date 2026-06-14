@@ -65,3 +65,12 @@
     group: "{{ storage_owner_group }}"
     mode: "{{ storage_mount_mode }}"
   tags: [storage]
+
+- name: Create wedding directory inside app-data
+  ansible.builtin.file:
+    path: "{{ storage_mount_path }}/collin-alivia-wedding"
+    state: directory
+    owner: "{{ storage_owner_user }}"
+    group: "{{ storage_owner_group }}"
+    mode: "{{ storage_mount_mode }}"
+  tags: [storage]
