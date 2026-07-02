@@ -24,3 +24,6 @@ storage_mount_options: defaults,nofail
 storage_owner_user: root
 storage_owner_group: docker
 storage_mount_mode: "0775"
+
+# Wedding app container runtime GID (matches node user's GID in the container image)
+wedding_app_gid: "2000"

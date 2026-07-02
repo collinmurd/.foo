@@ -66,11 +66,18 @@
     mode: "{{ storage_mount_mode }}"
   tags: [storage]
 
+- name: Ensure wedding app group exists
+  ansible.builtin.group:
+    name: wedding-app
+    gid: "{{ wedding_app_gid }}"
+    state: present
+  tags: [storage]
+
 - name: Create wedding directory inside app-data
   ansible.builtin.file:
     path: "{{ storage_mount_path }}/collin-alivia-wedding"
     state: directory
     owner: "{{ storage_owner_user }}"
-    group: "{{ storage_owner_group }}"
-    mode: "{{ storage_mount_mode }}"
+    group: wedding-app
+    mode: "2775"
   tags: [storage]
