@@ -69,6 +69,22 @@ output "instance_state" {
   value       = oci_core_instance.main.state
 }
 
+# Monitoring Outputs
+output "apm_domain_id" {
+  description = "OCID of the APM domain"
+  value       = oci_apm_apm_domain.main.id
+}
+
+output "apm_data_upload_endpoint" {
+  description = "APM domain data upload endpoint — use this as the OTEL exporter endpoint for future app instrumentation"
+  value       = oci_apm_apm_domain.main.data_upload_endpoint
+}
+
+output "alert_topic_id" {
+  description = "OCID of the OCI Notifications topic for site alerts"
+  value       = oci_ons_notification_topic.site_alerts.topic_id
+}
+
 output "instance_region" {
   description = "Region where the instance is running"
   value       = oci_core_instance.main.region

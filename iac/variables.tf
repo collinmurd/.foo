@@ -1,5 +1,24 @@
 # Input variables for Oracle Cloud Infrastructure
 
+# Monitoring Configuration
+variable "alert_email" {
+  description = "Email address to receive site health alert notifications"
+  type        = string
+}
+
+variable "alert_phone" {
+  description = "Phone number for SMS site health alerts in E.164 format (e.g. +15555550100). Set to null to disable SMS."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "apm_domain_display_name" {
+  description = "Display name for the APM domain"
+  type        = string
+  default     = "collinandalivia-monitoring"
+}
+
 # Compartment Configuration
 variable "compartment_id" {
   description = "The OCID of the compartment where resources will be created"
