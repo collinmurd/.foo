@@ -83,8 +83,9 @@ echo "Private key saved to: $KEY_DESTINATION"
 NGINX_CONFIG=$(jq -r '.reload_nginx // "false"' "$CONFIG_FILE")
 if [ "$NGINX_CONFIG" = "true" ]; then
     echo "Reloading Nginx configuration..."
-    if command -v nginx &> /dev/null; then
-        nginx -t && nginx -s reload
+    NGINX_BIN=$(command -v nginx 2>/dev/null || echo /usr/sbin/nginx)
+    if [ -x "$NGINX_BIN" ]; then
+        "$NGINX_BIN" -t && "$NGINX_BIN" -s reload
         echo "Nginx reloaded successfully"
     else
         echo "Warning: Nginx not found, skipping reload"
