@@ -6,9 +6,11 @@
 
 set -e
 
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
+
 # Check if config file is provided
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 /path/to/config.json"
+    log "Usage: $0 /path/to/config.json"
     exit 1
 fi
 
@@ -16,13 +18,13 @@ CONFIG_FILE="$1"
 
 # Check if config file exists
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Error: Config file not found: $CONFIG_FILE"
+    log "Error: Config file not found: $CONFIG_FILE"
     exit 1
 fi
 
 # Check if jq is installed (needed for JSON parsing)
 if ! command -v jq &> /dev/null; then
-    echo "Error: 'jq' is required but not installed. Please install it first."
+    log "Error: 'jq' is required but not installed. Please install it first."
     exit 1
 fi
 
@@ -34,15 +36,15 @@ SECRET_KEY=$(jq -r '.secret_key' "$CONFIG_FILE")
 
 # Validate configuration
 if [ -z "$DOMAIN" ] || [ -z "$CERT_DIR" ] || [ -z "$API_KEY" ] || [ -z "$SECRET_KEY" ]; then
-    echo "Error: Missing required configuration parameters"
-    echo "Please ensure config file contains domain, certificate_directory, api_key, and secret_key"
+    log "Error: Missing required configuration parameters"
+    log "Please ensure config file contains domain, certificate_directory, api_key, and secret_key"
     exit 1
 fi
 
 # Create certificate directory if it doesn't exist
 mkdir -p "$CERT_DIR"
 
-echo "Starting certificate renewal for $DOMAIN"
+log "Starting certificate renewal for $DOMAIN"
 
 # Make API request to retrieve SSL certificate
 API_RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/ssl/retrieve/$DOMAIN" \
@@ -56,7 +58,7 @@ API_RESPONSE=$(curl -s -X POST "https://api.porkbun.com/api/json/v3/ssl/retrieve
 STATUS=$(echo "$API_RESPONSE" | jq -r '.status')
 if [ "$STATUS" != "SUCCESS" ]; then
     ERROR=$(echo "$API_RESPONSE" | jq -r '.message')
-    echo "Error: Failed to retrieve certificate: $ERROR"
+    log "Error: Failed to retrieve certificate: $ERROR"
     exit 1
 fi
 
@@ -75,20 +77,20 @@ echo "$PRIVATE_KEY" > "$KEY_DESTINATION"
 chmod 644 "$CERT_DESTINATION"
 chmod 600 "$KEY_DESTINATION"
 
-echo "Successfully renewed SSL certificate for $DOMAIN"
-echo "Certificate saved to: $CERT_DESTINATION"
-echo "Private key saved to: $KEY_DESTINATION"
+log "Successfully renewed SSL certificate for $DOMAIN"
+log "Certificate saved to: $CERT_DESTINATION"
+log "Private key saved to: $KEY_DESTINATION"
 
 # Check if we need to reload Nginx
 NGINX_CONFIG=$(jq -r '.reload_nginx // "false"' "$CONFIG_FILE")
 if [ "$NGINX_CONFIG" = "true" ]; then
-    echo "Reloading Nginx configuration..."
+    log "Reloading Nginx configuration..."
     NGINX_BIN=$(command -v nginx 2>/dev/null || echo /usr/sbin/nginx)
     if [ -x "$NGINX_BIN" ]; then
         "$NGINX_BIN" -t && "$NGINX_BIN" -s reload
-        echo "Nginx reloaded successfully"
+        log "Nginx reloaded successfully"
     else
-        echo "Warning: Nginx not found, skipping reload"
+        log "Warning: Nginx not found, skipping reload"
     fi
 fi
 
