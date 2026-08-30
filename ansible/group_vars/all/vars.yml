@@ -20,7 +20,7 @@ storage_device_candidates:
   - /dev/vdb
 storage_mount_path: /var/lib/app-data
 storage_filesystem_type_name: ext4
-storage_mount_options: defaults,nofail
+storage_mount_options: defaults,nofail,_netdev
 storage_owner_user: root
 storage_owner_group: docker
 storage_mount_mode: "0775"
